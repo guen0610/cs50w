@@ -1,7 +1,7 @@
 console.log("This message should appear in the console.");
 document.addEventListener('DOMContentLoaded', function() {
 
-  console.log("DOMContentLoaded");
+  console.log("DOMContentLoadedee");
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
@@ -45,6 +45,7 @@ function compose_email() {
 
   console.log('compose_email');
   // Show compose view and hide other views
+  document.querySelector('#profile-view').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
@@ -58,6 +59,7 @@ function compose_email() {
 function load_mailbox(mailbox) {
   
   // Show the mailbox and hide other views
+  document.querySelector('#profile-view').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
@@ -67,6 +69,7 @@ function load_mailbox(mailbox) {
   fetch(`emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
+    console.log('hello');
     console.log(emails);
     
     // create the table element
@@ -87,8 +90,19 @@ function load_mailbox(mailbox) {
     table.append(headerRow);
 
     emails.forEach(email => {
-      console.log(`${email.recipients}`);
-      const row = document.createElement('tr');
+      console.log(`mail recipinet ${email.recipients}`);
+      let row = document.createElement('tr');
+      console.log(`${email.read}`);
+      if(email.read === false)
+      {
+        console.log("whiiite");
+        row.style.backgroundColor = "white";
+      }
+      else
+      {
+        console.log("graay");
+        row.style.backgroundColor = "gray";
+      }
       const cellSender = document.createElement('td');
       cellSender.textContent = email.sender;
       row.appendChild(cellSender);
@@ -104,6 +118,74 @@ function load_mailbox(mailbox) {
       const cellTimeStamp = document.createElement('td');
       cellTimeStamp.textContent = email.timestamp;
       row.appendChild(cellTimeStamp);
+
+      if(mailbox === "inbox")
+      {
+        const cellArchive = document.createElement('td');
+        var btn = document.createElement('input');
+        btn.type = "button";
+        btn.className = "btn";
+        btn.value = "archive";
+        btn.addEventListener('click', () => {
+          fetch(`/emails/${email.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              archived: true
+            })
+          })
+          
+        });
+        cellArchive.appendChild(btn);
+        row.appendChild(cellArchive);
+      }
+      else if (mailbox === "archive")
+      {
+        const cellArchive = document.createElement('td');
+        var btn = document.createElement('input');
+        btn.type = "button";
+        btn.className = "btn";
+        btn.value = "unarchive";
+        btn.addEventListener('click', () => {
+          fetch(`/emails/${email.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              archived: false
+            })
+          })
+          
+        });
+        td.appendChild(btn);
+        row.appendChild(cellArchive);
+      }
+
+      console.log(`mail daid ${email.id}`);
+      row.addEventListener("click", function(){
+        fetch(`/emails/${email.id}`)
+        .then(response => response.json())
+        .then(email => {
+          document.querySelector('#emails-view').style.display = 'none';
+          document.querySelector('#compose-view').style.display = 'none';
+          document.querySelector('#profile-view').style.display = 'block';
+
+          document.querySelector('#sender').innerHTML = email.sender;
+          document.querySelector('#recipients').innerHTML = email.recipients;
+          document.querySelector('#subject').innerHTML = email.subject;
+          document.querySelector('#timestamp').innerHTML = email.timestamp;
+          document.querySelector('#body').innerHTML = email.body;
+          console.log(email);
+
+          fetch(`/emails/${email.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+              read: true
+            })
+          })
+          .then(response => {
+            console.log(response);
+          });
+        })
+      });
+
 
       table.append(row);
     });

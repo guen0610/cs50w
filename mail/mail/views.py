@@ -114,6 +114,7 @@ def email(request, email_id):
     elif request.method == "PUT":
         data = json.loads(request.body)
         if data.get("read") is not None:
+            print(data["read"])
             email.read = data["read"]
         if data.get("archived") is not None:
             email.archived = data["archived"]
