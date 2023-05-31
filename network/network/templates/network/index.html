@@ -1,0 +1,33 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h1>All Posts</h1>
+    {% if user.is_authenticated %}
+        <div class="new-post">
+            <h2>New Post</h2>
+            <form action="{% url 'newPost' %}" method="post">
+                {% csrf_token %}
+                <textarea name="content" row="4" cols="50"></textarea>
+                </br>
+                <input type="submit" value="Post" class="btn btn-primary">
+            </form>
+        </div>
+    {% endif %}
+
+    <div class="all-posts">
+        {% for post in posts_of_the_page %}
+            <div class="row post">
+                <h5 class="username">@{{ post.user }}</h5>
+                <h6 class="content">{{ post.content }}</h6>
+                <p class="date">{{ post.date }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination d-flex justify-content-center">
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+{% endblock %}
