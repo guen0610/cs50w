@@ -10,8 +10,8 @@ from .models import User, Post
 
 def index(request):
     allPosts = Post.objects.all().order_by("id").reverse()
-    paginator = Paginator(allPosts, 10)
-    pageNumber = request.get.Get['page']
+    paginator = Paginator(allPosts, 2)
+    pageNumber = request.GET.get('page')
     postsOfThePage = paginator.get_page(pageNumber)
 
     return render(request, "network/index.html", {
